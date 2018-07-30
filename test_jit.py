@@ -34,3 +34,21 @@ class TestFunctionAssembler:
         assert self.equals(fasm.instructions, [
             asm.MOVSD(asm.qword[asm.rbp - 0x08], asm.xmm0)
         ])
+
+    def test_prologue(self):
+        fasm = jit.FunctionAssembler()
+        fasm.prologue(['a', 'b'])
+        assert self.equals(fasm.instructions, [
+            asm.PUSH(asm.rbp),
+            asm.MOV(asm.rbp, asm.rsp),
+            asm.MOVSD(asm.qword[asm.rbp-0x08], asm.xmm0),
+            asm.MOVSD(asm.qword[asm.rbp-0x10], asm.xmm1),
+        ])
+
+    def test_epilogue(self):
+        fasm = jit.FunctionAssembler()
+        fasm.epilogue()
+        assert self.equals(fasm.instructions, [
+            asm.POP(asm.rbp),
+            asm.RET(),
+        ])

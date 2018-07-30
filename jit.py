@@ -47,3 +47,18 @@ class FunctionAssembler:
 
     def add(self, instr):
         self.instructions.append(instr)
+
+    def prologue(self, argnames):
+        regs = [asm.xmm0, asm.xmm1, asm.xmm2, asm.xmm3,
+                asm.xmm4, asm.xmm5, asm.xmm6, asm.xmm7]
+        if len(argnames) > len(regs):
+            raise NotImplementedError("too many arguments")
+        self.nargs = len(argnames)
+        self.add(asm.PUSH(asm.rbp))
+        self.add(asm.MOV(asm.rbp, asm.rsp))
+        for varname, reg in zip(argnames, regs):
+            self.store_var(varname, reg)
+
+    def epilogue(self):
+        self.add(asm.POP(asm.rbp))
+        self.add(asm.RET())
