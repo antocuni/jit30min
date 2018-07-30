@@ -1,5 +1,7 @@
 import mmap
 from cffi import FFI
+from peachpy import x86_64 as asm
+
 ffi = FFI()
 ffi.cdef("typedef double (*d2_d_t)(double, double);")
 
@@ -20,6 +22,7 @@ class FunctionAssembler:
 
     def __init__(self):
         self.nargs = None
+        self.instructions = []
         self.locals = {} # varname -> offset
         self._cur_offset = -0x08 # we start with the return address on the stack
 
@@ -31,3 +34,16 @@ class FunctionAssembler:
         res = self.locals[varname] = self._cur_offset
         self._cur_offset -= 8
         return res
+
+    def load_var(self, dst, varname):
+        ofs = self.var_offset(varname)
+        instr = asm.MOVSD(dst, asm.qword[asm.rbp + ofs])
+        self.add(instr)
+
+    def store_var(self, varname, src):
+        ofs = self.var_offset(varname)
+        instr = asm.MOVSD(asm.qword[asm.rbp + ofs], src)
+        self.add(instr)
+
+    def add(self, instr):
+        self.instructions.append(instr)
