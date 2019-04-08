@@ -39,47 +39,17 @@ class RegAllocator:
     def get(self, varname):
         return self.vars[varname]
 
+
 class FunctionAssembler:
 
-    def __init__(self):
-        self.nargs = None
+    def __init__(self, args):
+        self.args = args
+        self.nargs = len(args)
         self.instructions = []
-        self.locals = {} # varname -> offset
-        self._cur_offset = -0x08 # we start with the return address on the stack
+        self.registers = RegAllocator()
+        # force allocation of registers for arguments
+        for arg in args:
+            self.registers.get(arg)
 
-    def var_offset(self, varname):
-        try:
-            return self.locals[varname]
-        except KeyError:
-            pass
-        res = self.locals[varname] = self._cur_offset
-        self._cur_offset -= 8
-        return res
-
-    def load_var(self, dst, varname):
-        ofs = self.var_offset(varname)
-        instr = asm.MOVSD(dst, asm.qword[asm.rbp + ofs])
-        self.add(instr)
-
-    def store_var(self, varname, src):
-        ofs = self.var_offset(varname)
-        instr = asm.MOVSD(asm.qword[asm.rbp + ofs], src)
-        self.add(instr)
-
-    def add(self, instr):
+    def emit(self, instr):
         self.instructions.append(instr)
-
-    def prologue(self, argnames):
-        regs = [asm.xmm0, asm.xmm1, asm.xmm2, asm.xmm3,
-                asm.xmm4, asm.xmm5, asm.xmm6, asm.xmm7]
-        if len(argnames) > len(regs):
-            raise NotImplementedError("too many arguments")
-        self.nargs = len(argnames)
-        self.add(asm.PUSH(asm.rbp))
-        self.add(asm.MOV(asm.rbp, asm.rsp))
-        for varname, reg in zip(argnames, regs):
-            self.store_var(varname, reg)
-
-    def epilogue(self):
-        self.add(asm.POP(asm.rbp))
-        self.add(asm.RET())
