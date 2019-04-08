@@ -1,3 +1,4 @@
+import pytest
 import jit
 from jit import asm
 
@@ -6,6 +7,25 @@ def test_CompliedFunction():
     p = jit.CompiledFunction(code)
     assert p.fptr(12.34, 56.78) == 12.34 + 56.78
     assert p(12.34, 56.78) == 12.34 + 56.78
+
+class TestRegAllocator:
+
+    def test_allocate(self):
+        regs = jit.RegAllocator()
+        assert regs.get('a') == asm.xmm0
+        assert regs.get('b') == asm.xmm1
+        assert regs.get('a') == asm.xmm0
+        assert regs.get('c') == asm.xmm2
+
+    def test_too_many_vars(self):
+        regs = jit.RegAllocator()
+        # force allocation of xmm0..xmm14
+        for i in range(15):
+            regs.get('var%d' % i)
+        assert regs.get('var15') == asm.xmm15
+        pytest.raises(NotImplementedError, "regs.get('var16')")
+
+
 
 class TestFunctionAssembler:
 
