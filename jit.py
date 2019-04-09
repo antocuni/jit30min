@@ -23,8 +23,9 @@ class RegAllocator:
 
     REGISTERS = (asm.xmm0, asm.xmm1, asm.xmm2, asm.xmm3, asm.xmm4,
                  asm.xmm5, asm.xmm6, asm.xmm7, asm.xmm8, asm.xmm9,
-                 asm.xmm10, asm.xmm11, asm.xmm12, asm.xmm13,
-                 asm.xmm14, asm.xmm15)
+                 asm.xmm10, asm.xmm11, asm.xmm12, asm.xmm13)
+
+    SCRATCH = (asm.xmm14, asm.xmm15)
 
     def __init__(self):
         self.vars = defaultdict(self._allocate) # name -> reg
