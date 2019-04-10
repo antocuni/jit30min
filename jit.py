@@ -78,6 +78,8 @@ class AstCompiler:
         argnames = [arg.arg for arg in node.args.args]
         self.asm = FA(node.name, argnames)
         self.regs = RegAllocator()
+        for argname in argnames:
+            self.regs.get(argname)
         for child in node.body:
             self.visit(child)
         # XXX: emit a default return?
@@ -90,6 +92,7 @@ class AstCompiler:
     def BinOp(self, node):
         OPS = {
             'ADD': self.asm.ADDSD,
+            'SUB': self.asm.SUBSD,
             }
         opname = node.op.__class__.__name__.upper()
         self.visit(node.left)
