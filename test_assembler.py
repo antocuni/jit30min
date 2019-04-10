@@ -30,3 +30,20 @@ class TestFunctionAssembler:
         pyfn = asm._as_pyfunc()
         assert pyfn(3, 4) == 107
 
+    def test_pushsd_popsd(self):
+        asm = FunctionAssembler('foo', ['a', 'b', 'c'])
+        asm.pushsd(asm.xmm0)
+        asm.pushsd(asm.xmm1)
+        asm.pushsd(asm.xmm2)
+        asm.PXOR(asm.xmm0, asm.xmm0)        # xmm0 = 0
+        asm.popsd(asm.xmm1)
+        asm.MULSD(asm.xmm1, asm.const(100)) # xmm0 += (xmm1*100)
+        asm.ADDSD(asm.xmm0, asm.xmm1)
+        asm.popsd(asm.xmm1)
+        asm.MULSD(asm.xmm1, asm.const(10)) # xmm0 += (xmm1*10)
+        asm.ADDSD(asm.xmm0, asm.xmm1)
+        asm.popsd(asm.xmm1)
+        asm.ADDSD(asm.xmm0, asm.xmm1)
+        asm.RET()
+        pyfn = asm._as_pyfunc()
+        assert pyfn(1, 2, 3) == 321
