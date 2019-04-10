@@ -29,13 +29,15 @@ class TestRegAllocator:
 
 class TestFunctionAssembler:
 
-    def equals(self, l1, l2):
-        enc1 = [instr.encode() for instr in l1]
-        enc2 = [instr.encode() for instr in l2]
-        return enc1 == enc2
-
     def test_arguments(self):
-        fn = jit.FunctionAssembler(['a', 'b'])
-        assert fn.registers.get('a') == asm.xmm0
-        assert fn.registers.get('b') == asm.xmm1
-        assert fn.registers.get('c') == asm.xmm2
+        assembler = jit.FunctionAssembler('foo', ['a', 'b'])
+        assert assembler.var('a') == asm.xmm0
+        assert assembler.var('b') == asm.xmm1
+        assert assembler.var('c') == asm.xmm2
+
+    def test_compile(self):
+        assembler = jit.FunctionAssembler('foo', ['a', 'b'])
+        assembler.emit(asm.ADDSD(asm.xmm0, asm.xmm1))
+        assembler.emit(asm.RET())
+        fn = assembler.compile()
+        assert fn(3, 4) == 7

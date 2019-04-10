@@ -1,6 +1,7 @@
 import mmap
 from collections import defaultdict
 from cffi import FFI
+from peachpy import Argument, double_
 from peachpy import x86_64 as asm
 
 ffi = FFI()
@@ -43,14 +44,27 @@ class RegAllocator:
 
 class FunctionAssembler:
 
-    def __init__(self, args):
-        self.args = args
-        self.nargs = len(args)
-        self.instructions = []
-        self.registers = RegAllocator()
+    def __init__(self, name, args):
+        self.name = name
+        self._peachpy_fn = self._make_peachpy_fn(name, args)
+        self._registers = RegAllocator()
         # force allocation of registers for arguments
         for arg in args:
-            self.registers.get(arg)
+            self._registers.get(arg)
+
+    def _make_peachpy_fn(self, name, args):
+        args = [Argument(double_, name=arg) for arg in args]
+        return asm.Function(name, args)
+
+    def var(self, name):
+        return self._registers.get(name)
 
     def emit(self, instr):
-        self.instructions.append(instr)
+        self._peachpy_fn.add_instruction(instr)
+
+    def compile(self):
+        abi_func = self._peachpy_fn.finalize(asm.abi.detect())
+        enc_func = abi_func.encode()
+        #print(enc_func.format())
+        code = str(enc_func.code_section.content)
+        return CompiledFunction(code)
