@@ -1,5 +1,5 @@
 import peachpy
-from peachpy import Argument, double_
+from peachpy import Argument, double_, Constant
 from peachpy import x86_64
 # workaround because peachpy forget to expose rsp
 x86_64.rsp = peachpy.x86_64.registers.rsp
@@ -20,6 +20,9 @@ class FunctionAssembler:
             return emit
         else:
             return obj
+
+    def const(self, val):
+        return Constant.float64(float(val))
 
     def pushsd(self, reg):
         self.SUB(self.rsp, 16)

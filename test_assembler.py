@@ -21,3 +21,12 @@ class TestFunctionAssembler:
         asm.RET()
         pyfn = asm._as_pyfunc()
         assert pyfn(3, 4) == 7
+
+    def test_const(self):
+        asm = FunctionAssembler('foo', ['a', 'b'])
+        asm.ADDSD(asm.xmm0, asm.xmm1)
+        asm.ADDSD(asm.xmm0, asm.const(100))
+        asm.RET()
+        pyfn = asm._as_pyfunc()
+        assert pyfn(3, 4) == 107
+
