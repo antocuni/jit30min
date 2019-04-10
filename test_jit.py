@@ -4,7 +4,7 @@ from jit import asm
 
 def test_CompliedFunction():
     code = b'\xf2\x0f\x58\xc1\xc3' # addsd  xmm0,xmm1 ; ret
-    p = jit.CompiledFunction(code)
+    p = jit.CompiledFunction(2, code)
     assert p.fptr(12.34, 56.78) == 12.34 + 56.78
     assert p(12.34, 56.78) == 12.34 + 56.78
 
@@ -41,3 +41,11 @@ class TestFunctionAssembler:
         assembler.emit(asm.RET())
         fn = assembler.compile()
         assert fn(3, 4) == 7
+
+    def test_nargs(self):
+        assembler = jit.FunctionAssembler('foo', ['a', 'b', 'c'])
+        assembler.emit(asm.ADDSD(asm.xmm0, asm.xmm1))
+        assembler.emit(asm.ADDSD(asm.xmm0, asm.xmm2))
+        assembler.emit(asm.RET())
+        fn = assembler.compile()
+        assert fn(3, 4, 5) == 12

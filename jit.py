@@ -5,16 +5,21 @@ from peachpy import Argument, double_
 from peachpy import x86_64 as asm
 
 ffi = FFI()
-ffi.cdef("typedef double (*d2_d_t)(double, double);")
+ffi.cdef("""
+    typedef double (*fn0)(void);
+    typedef double (*fn1)(double);
+    typedef double (*fn2)(double, double);
+    typedef double (*fn3)(double, double, double);
+""")
 
 class CompiledFunction:
 
-    # XXX: for now we assume that the signature is (double, double) -> double
-    def __init__(self, code):
+    def __init__(self, nargs, code):
         self.map = mmap.mmap(-1, len(code), mmap.MAP_PRIVATE,
                              mmap.PROT_READ | mmap.PROT_WRITE | mmap.PROT_EXEC)
         self.map[:len(code)] = code
-        self.fptr = ffi.cast('d2_d_t', ffi.from_buffer(self.map))
+        fntype = 'fn%d' % nargs
+        self.fptr = ffi.cast(fntype, ffi.from_buffer(self.map))
 
     def __call__(self, *args):
         return self.fptr(*args)
@@ -46,6 +51,7 @@ class FunctionAssembler:
 
     def __init__(self, name, args):
         self.name = name
+        self.nargs = len(args)
         self._peachpy_fn = self._make_peachpy_fn(name, args)
         self._registers = RegAllocator()
         # force allocation of registers for arguments
@@ -67,4 +73,4 @@ class FunctionAssembler:
         enc_func = abi_func.encode()
         #print(enc_func.format())
         code = str(enc_func.code_section.content)
-        return CompiledFunction(code)
+        return CompiledFunction(self.nargs, code)
