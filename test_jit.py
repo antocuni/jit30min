@@ -31,15 +31,15 @@ class TestAstCompiler:
     def test_simple(self):
         comp = jit.AstCompiler("""
         def foo(a, b):
+            return b
+        """)
+        fn = comp.compile()
+        assert fn(3, 4) == 4
+
+    def test_add(self):
+        comp = jit.AstCompiler("""
+        def foo(a, b):
             return a+b
         """)
         fn = comp.compile()
         assert fn(3, 4) == 7
-
-    def test_allocate_args(self):
-        comp = jit.AstCompiler("""
-        def foo(a, b):
-            return b-a
-        """)
-        fn = comp.compile()
-        assert fn(4, 10) == 6
