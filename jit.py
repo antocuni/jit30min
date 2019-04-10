@@ -1,8 +1,16 @@
 import mmap
+import ast
+import textwrap
 from collections import defaultdict
 from cffi import FFI
 from peachpy import Argument, double_
 from peachpy import x86_64 as asm
+import astpretty
+
+# workaround because peachpy forget to expose rsp
+import peachpy
+asm.rsp = peachpy.x86_64.registers.rsp
+
 
 ffi = FFI()
 ffi.cdef("""
@@ -68,10 +76,70 @@ class FunctionAssembler:
     def emit(self, instr):
         self._peachpy_fn.add_instruction(instr)
 
+    def pushsd(self, reg):
+        self.emit(asm.SUB(asm.rsp, 16))
+        self.emit(asm.MOVSD(asm.qword[asm.rsp], reg))
+
+    def popsd(self, reg):
+        self.emit(asm.MOVSD(reg, asm.qword[asm.rsp]))
+        self.emit(asm.ADD(asm.rsp, 16))
+
     def compile(self):
         abi_func = self._peachpy_fn.finalize(asm.abi.detect())
         enc_func = abi_func.encode()
-        #print(enc_func.format())
+        print(enc_func.format())
         code = enc_func.code_section.content
         return CompiledFunction(self.nargs, code)
 
+
+class AstCompiler:
+
+    def __init__(self, src):
+        self.tree = ast.parse(textwrap.dedent(src))
+        #astpretty.pprint(self.tree)
+        self.assembler = None
+
+    def compile(self):
+        self.visit(self.tree)
+        assert self.assembler is not None, 'No function found?'
+        return self.assembler.compile()
+
+    def visit(self, node):
+        methname = node.__class__.__name__
+        meth = getattr(self, methname, None)
+        if meth is None:
+            raise NotImplementedError(methname)
+        meth(node)
+
+    def Module(self, node):
+        for child in node.body:
+            self.visit(child)
+
+    def FunctionDef(self, node):
+        assert not self.assembler, 'cannot compile more than one function'
+        argnames = [arg.arg for arg in node.args.args]
+        self.assembler = FunctionAssembler(node.name, argnames)
+        for child in node.body:
+            self.visit(child)
+        # XXX: emit a default return?
+
+    def Return(self, node):
+        self.visit(node.value)
+        self.assembler.popsd(asm.xmm0)
+        self.assembler.emit(asm.RET())
+
+    def BinOp(self, node):
+        OPS = {
+            'ADD': asm.ADDSD,
+            }
+        opname = node.op.__class__.__name__.upper()
+        self.visit(node.left)
+        self.assembler.popsd(asm.xmm14)
+        self.visit(node.right)
+        self.assembler.popsd(asm.xmm15)
+        self.assembler.emit(OPS[opname](asm.xmm14, asm.xmm15))
+        self.assembler.pushsd(asm.xmm14)
+
+    def Name(self, node):
+        reg = self.assembler.var(node.id)
+        self.assembler.pushsd(reg)

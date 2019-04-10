@@ -49,3 +49,14 @@ class TestFunctionAssembler:
         assembler.emit(asm.RET())
         fn = assembler.compile()
         assert fn(3, 4, 5) == 12
+
+
+class TestAstCompiler:
+
+    def test_simple(self):
+        comp = jit.AstCompiler("""
+        def foo(a, b):
+            return a+b
+        """)
+        fn = comp.compile()
+        assert fn(3, 4) == 7
