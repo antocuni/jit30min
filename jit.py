@@ -72,5 +72,6 @@ class FunctionAssembler:
         abi_func = self._peachpy_fn.finalize(asm.abi.detect())
         enc_func = abi_func.encode()
         #print(enc_func.format())
-        code = str(enc_func.code_section.content)
+        code = enc_func.code_section.content
         return CompiledFunction(self.nargs, code)
+
