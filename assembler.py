@@ -6,8 +6,15 @@ x86_64.rsp = peachpy.x86_64.registers.rsp
 
 
 class FunctionAssembler:
+
+    from peachpy.x86_64 import (xmm0, xmm1, xmm2, xmm3, xmm4,
+                                xmm5, xmm6, xmm7, xmm8, xmm9,
+                                xmm10, xmm11, xmm12, xmm13,
+                                xmm14, xmm15)
+
     def __init__(self, name, argnames):
         self.name = name
+        self.nargs = len(argnames)
         args = [Argument(double_, name=name) for name in argnames]
         self._peachpy_fn = x86_64.Function(name, args, double_)
 
@@ -36,7 +43,7 @@ class FunctionAssembler:
         abi_func = self._peachpy_fn.finalize(x86_64.abi.detect())
         return abi_func.encode()
 
-    def compile(self):
+    def encode(self):
         encoded_func = self._encode()
         #print(encoded_func.format())
         return encoded_func.code_section.content
