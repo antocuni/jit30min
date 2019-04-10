@@ -28,6 +28,14 @@ class TestRegAllocator:
 
 class TestAstCompiler:
 
+    def test_empty(self):
+        comp = jit.AstCompiler("""
+        def foo():
+            pass
+        """)
+        fn = comp.compile()
+        assert fn() == 0
+
     def test_simple(self):
         comp = jit.AstCompiler("""
         def foo(a, b):

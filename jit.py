@@ -82,7 +82,14 @@ class AstCompiler:
             self.regs.get(argname)
         for child in node.body:
             self.visit(child)
-        # XXX: emit a default return?
+        #
+        # by default, a function returns 0 if not explict return has been
+        # executed
+        self.asm.PXOR(self.asm.xmm0, self.asm.xmm0)
+        self.asm.RET()
+
+    def Pass(self, node):
+        pass
 
     def Return(self, node):
         self.visit(node.value)
