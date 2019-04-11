@@ -96,6 +96,10 @@ class AstCompiler:
         self.asm.popsd(self.asm.xmm0)
         self.asm.RET()
 
+    def Num(self, node):
+        self.asm.MOVSD(self.asm.xmm14, self.asm.const(node.n))
+        self.asm.pushsd(self.asm.xmm14)
+
     def BinOp(self, node):
         OPS = {
             'ADD': self.asm.ADDSD,

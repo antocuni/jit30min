@@ -45,6 +45,14 @@ class TestAstCompiler:
 
     def test_simple(self):
         comp = jit.AstCompiler("""
+        def foo():
+            return 100
+        """)
+        fn = comp.compile()
+        assert fn() == 100
+
+    def test_arguments(self):
+        comp = jit.AstCompiler("""
         def foo(a, b):
             return b
         """)
