@@ -59,7 +59,7 @@ class AstCompiler:
     def compile(self):
         self.visit(self.tree)
         assert self.asm is not None, 'No function found?'
-        code = self.asm.encode()
+        code = self.asm.assemble_and_relocate()
         return CompiledFunction(self.asm.nargs, code)
 
     def visit(self, node):

@@ -12,7 +12,7 @@ class TestCompiledFuntion(AssemblerTest):
         assert p(12.34, 56.78) == 12.34 + 56.78
 
     def load(self, asm):
-        code = asm.encode()
+        code = asm.assemble_and_relocate()
         return jit.CompiledFunction(asm.nargs, code)
 
 class TestRegAllocator:
