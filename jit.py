@@ -104,12 +104,14 @@ class AstCompiler:
         OPS = {
             'ADD': self.asm.ADDSD,
             'SUB': self.asm.SUBSD,
+            'MULT': self.asm.MULSD,
+            'DIV': self.asm.DIVSD,
             }
         opname = node.op.__class__.__name__.upper()
         self.visit(node.left)
-        self.asm.popsd(self.asm.xmm14)
         self.visit(node.right)
         self.asm.popsd(self.asm.xmm15)
+        self.asm.popsd(self.asm.xmm14)
         OPS[opname](self.asm.xmm14, self.asm.xmm15)
         self.asm.pushsd(self.asm.xmm14)
 

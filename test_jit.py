@@ -66,3 +66,12 @@ class TestAstCompiler:
         """)
         fn = comp.compile()
         assert fn(3, 4) == 7
+
+    def test_binops(self):
+        comp = jit.AstCompiler("""
+        def foo(a, b):
+            return (a-b) + (a*b) - (a/b)
+        """)
+        fn = comp.compile()
+        res = (3-4) + (3*4) - (3.0/4)
+        assert fn(3, 4) == res
