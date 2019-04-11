@@ -3,6 +3,10 @@ from peachpy import x86_64
 
 class TestFunctionAssembler:
 
+    def load(self, asm):
+        encoded_func = asm._encode()
+        return encoded_func.load()
+
     def test_getattr(self):
         asm = FunctionAssembler('foo', [])
         assert asm.xmm0 is x86_64.xmm0
@@ -19,7 +23,7 @@ class TestFunctionAssembler:
         asm = FunctionAssembler('foo', ['a', 'b'])
         asm.ADDSD(asm.xmm0, asm.xmm1)
         asm.RET()
-        pyfn = asm._as_pyfunc()
+        pyfn = self.load(asm)
         assert pyfn(3, 4) == 7
 
     def test_const(self):
@@ -27,7 +31,7 @@ class TestFunctionAssembler:
         asm.ADDSD(asm.xmm0, asm.xmm1)
         asm.ADDSD(asm.xmm0, asm.const(100))
         asm.RET()
-        pyfn = asm._as_pyfunc()
+        pyfn = self.load(asm)
         assert pyfn(3, 4) == 107
 
     def test_pushsd_popsd(self):
@@ -45,5 +49,5 @@ class TestFunctionAssembler:
         asm.popsd(asm.xmm1)
         asm.ADDSD(asm.xmm0, asm.xmm1)
         asm.RET()
-        pyfn = asm._as_pyfunc()
+        pyfn = self.load(asm)
         assert pyfn(1, 2, 3) == 321

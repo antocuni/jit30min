@@ -45,9 +45,5 @@ class FunctionAssembler:
 
     def encode(self):
         encoded_func = self._encode()
-        #print(encoded_func.format())
+        #print(); print(encoded_func.format())
         return encoded_func.code_section.content
-
-    def _as_pyfunc(self):
-        encoded_func = self._encode()
-        return encoded_func.load()
