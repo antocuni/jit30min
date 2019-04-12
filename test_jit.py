@@ -85,7 +85,6 @@ class TestAstCompiler:
         fn = comp.compile()
         assert fn(41) == 42
 
-
     def test_if(self):
         comp = jit.AstCompiler("""
         def foo(a):
@@ -96,3 +95,16 @@ class TestAstCompiler:
         fn = comp.compile()
         assert fn(-42) == 42
         assert fn(42) == 42
+
+    def test_while(self):
+        comp = jit.AstCompiler("""
+        def foo(a):
+            tot = 0
+            i = 0
+            while i < a:
+                tot = tot + i
+                i = i + 1
+            return tot
+        """)
+        fn = comp.compile()
+        assert fn(5) == 1+2+3+4

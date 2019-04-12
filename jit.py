@@ -131,13 +131,22 @@ class AstCompiler:
         self.asm.MOVSD(reg, self.tmp0)
 
     def If(self, node):
+        """
+        UCOMISD left, right
+        JNA <then>
+        JMP <end>
+        <then>:
+            BODY
+        <end>:
+            ...
+        """
+        CMP = {
+            'LT': self.asm.JB
+            }
         assert not node.orelse
         then_label = self.asm.Label()
         end_label = self.asm.Label()
         op = self.visit(node.test)
-        CMP = {
-            'LT': self.asm.JNA
-            }
         CMP[op](then_label)
         self.asm.JMP(end_label)
         self.asm.LABEL(then_label)
@@ -154,3 +163,32 @@ class AstCompiler:
         self.asm.popsd(self.tmp0)
         self.asm.UCOMISD(self.tmp0, self.tmp1)
         return cmp_op
+
+    def While(self, node):
+        """
+        <begin>:
+        UCOMISD left, right
+        JNA <body>
+        JMP <end>
+        <body>:
+            BODY
+            JMP <begin>
+        <end>:
+            ...
+        """
+        CMP = {
+            'LT': self.asm.JB
+            }
+        begin_label = self.asm.Label()
+        body_label = self.asm.Label()
+        end_label = self.asm.Label()
+        #
+        self.asm.LABEL(begin_label)
+        op = self.visit(node.test)
+        CMP[op](body_label)
+        self.asm.JMP(end_label)
+        self.asm.LABEL(body_label)
+        for child in node.body:
+            self.visit(child)
+        self.asm.JMP(begin_label)
+        self.asm.LABEL(end_label)
