@@ -51,3 +51,14 @@ class TestFunctionAssembler:
         asm.RET()
         pyfn = self.load(asm)
         assert pyfn(1, 2, 3) == 321
+
+    def test_jump(self):
+        asm = FunctionAssembler('foo', [])
+        label = asm.Label()
+        asm.MOVSD(asm.xmm0, asm.const(42))
+        asm.JMP(label)
+        asm.MOVSD(asm.xmm0, asm.const(123)) # this is not executed
+        asm.LABEL(label)
+        asm.RET()
+        pyfn = self.load(asm)
+        assert pyfn() == 42
