@@ -76,6 +76,16 @@ class TestAstCompiler:
         res = (3-4) + (3*4) - (3.0/4)
         assert fn(3, 4) == res
 
+    def test_assign(self):
+        comp = jit.AstCompiler("""
+        def foo(a):
+            b = a + 1
+            return b
+        """)
+        fn = comp.compile()
+        assert fn(41) == 42
+
+
     def test_if(self):
         comp = jit.AstCompiler("""
         def foo(a):

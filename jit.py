@@ -122,6 +122,14 @@ class AstCompiler:
         reg = self.regs.get(node.id)
         self.asm.pushsd(reg)
 
+    def Assign(self, node):
+        assert len(node.targets) == 1
+        varname = node.targets[0].id
+        reg = self.regs.get(varname)
+        self.visit(node.value)
+        self.asm.popsd(self.tmp0)
+        self.asm.MOVSD(reg, self.tmp0)
+
     def If(self, node):
         assert not node.orelse
         then_label = self.asm.Label()
