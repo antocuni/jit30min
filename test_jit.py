@@ -75,3 +75,14 @@ class TestAstCompiler:
         fn = comp.compile()
         res = (3-4) + (3*4) - (3.0/4)
         assert fn(3, 4) == res
+
+    def test_if(self):
+        comp = jit.AstCompiler("""
+        def foo(a):
+            if a < 0:
+                return 0-a
+            return a
+        """)
+        fn = comp.compile()
+        assert fn(-42) == 42
+        assert fn(42) == 42

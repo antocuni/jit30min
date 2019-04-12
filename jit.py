@@ -46,6 +46,8 @@ class RegAllocator:
     def get(self, varname):
         return self.vars[varname]
 
+def show(node):
+    astpretty.pprint(node)
 
 class AstCompiler:
 
@@ -73,7 +75,7 @@ class AstCompiler:
         meth = getattr(self, methname, None)
         if meth is None:
             raise NotImplementedError(methname)
-        meth(node)
+        return meth(node)
 
     def Module(self, node):
         for child in node.body:
@@ -119,3 +121,28 @@ class AstCompiler:
     def Name(self, node):
         reg = self.regs.get(node.id)
         self.asm.pushsd(reg)
+
+    def If(self, node):
+        assert not node.orelse
+        then_label = self.asm.Label()
+        end_label = self.asm.Label()
+        op = self.visit(node.test)
+        CMP = {
+            'LT': self.asm.JNA
+            }
+        CMP[op](then_label)
+        self.asm.JMP(end_label)
+        self.asm.LABEL(then_label)
+        for child in node.body:
+            self.visit(child)
+        self.asm.LABEL(end_label)
+
+    def Compare(self, node):
+        assert len(node.ops) == 1
+        cmp_op = node.ops[0].__class__.__name__.upper()
+        self.visit(node.left)
+        self.visit(node.comparators[0])
+        self.asm.popsd(self.tmp1)
+        self.asm.popsd(self.tmp0)
+        self.asm.UCOMISD(self.tmp0, self.tmp1)
+        return cmp_op
