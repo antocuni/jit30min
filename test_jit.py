@@ -27,10 +27,10 @@ class TestRegAllocator:
     def test_too_many_vars(self):
         regs = jit.RegAllocator()
         # force allocation of xmm0..xmm14
-        for i in range(13):
+        for i in range(15):
             regs.get('var%d' % i)
-        assert regs.get('var13') == FA.xmm13
-        pytest.raises(NotImplementedError, "regs.get('var14')")
+        assert regs.get('var15') == FA.xmm15
+        pytest.raises(NotImplementedError, "regs.get('var16')")
 
 
 class TestAstCompiler:
