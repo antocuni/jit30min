@@ -50,6 +50,8 @@ def recurse_through_ast(node, handle_ast, handle_terminal, handle_fields,
     )
     field_results = []
     for field_name, field_value in node_fields:
+        if field_name == 'ctx':
+            continue
         if isinstance(field_value, ast.AST):
             field_results.append(handle_ast(field_value))
         
