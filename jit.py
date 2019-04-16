@@ -62,8 +62,8 @@ class AstCompiler:
         self.regs = RegAllocator()
         for argname in argnames:
             self.regs.get(argname)
-        self.tmp0 = self.regs.get('__scracth_register_0__')
-        self.tmp1 = self.regs.get('__scracth_register_1__')
+        self.tmp0 = self.regs.get('__scratch_register_0__')
+        self.tmp1 = self.regs.get('__scratch_register_1__')
 
     def compile(self):
         self.visit(self.tree)
