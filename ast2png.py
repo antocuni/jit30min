@@ -39,8 +39,10 @@ def _strip_docstring(body):
         return body[1:]
     return body
 
-def recurse_through_ast(node, handle_ast, handle_terminal, handle_fields, handle_no_fields, omit_docstrings):
-    possible_docstring = isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module))
+def recurse_through_ast(node, handle_ast, handle_terminal, handle_fields,
+                        handle_no_fields, omit_docstrings):
+    possible_docstring = isinstance(node, (ast.FunctionDef,
+                                           ast.ClassDef, ast.Module))
     
     node_fields = zip(
         node._fields,
@@ -85,7 +87,11 @@ def _attach_to_parent(parent, graph, names, label, name=None, **style):
         graph.edge(parent, node_name, sametail='t{}'.format(parent))
 
 
-def handle_ast(node, parent_node, graph, names, omit_docstrings, terminal_color, nonterminal_color):
+def handle_ast(node, parent_node, graph, names, omit_docstrings, terminal_color,
+               nonterminal_color, highlight_node):
+    if node is highlight_node:
+        nonterminal_color = '#CC0000'
+
     attach_to_parent = partial(
         _attach_to_parent,
         graph=graph,
@@ -108,6 +114,7 @@ def handle_ast(node, parent_node, graph, names, omit_docstrings, terminal_color,
             omit_docstrings=omit_docstrings, 
             terminal_color=terminal_color, 
             nonterminal_color=nonterminal_color,
+            highlight_node=highlight_node,
         ), 
         partial(
             handle_terminal, 
@@ -157,18 +164,19 @@ def handle_no_fields(__, parent_node, graph, terminal_color, nonterminal_color):
     )
 
 
-def render(node, filename, settings=SETTINGS):
+def ast2png(root, highlight_node=None, filename='ast.png', settings=SETTINGS):
     graph = graphviz.Graph(format='png')
     names = (str(x) for x in itertools.count())
 
     handle_ast(
-        node,
+        root,
         parent_node=None,
         graph=graph,
         names=names,
         omit_docstrings=settings['omit_docstrings'],
         terminal_color=settings['terminal_color'],
         nonterminal_color=settings['nonterminal_color'],
+        highlight_node=highlight_node,
     )
 
     graph.node_attr.update(dict(

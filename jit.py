@@ -3,7 +3,6 @@ import ast
 import textwrap
 from collections import defaultdict
 from cffi import FFI
-import astpretty
 from assembler import FunctionAssembler as FA
 
 ffi = FFI()
@@ -46,15 +45,17 @@ class RegAllocator:
     def get(self, varname):
         return self.vars[varname]
 
-def show(node):
-    astpretty.pprint(node)
-
 class AstCompiler:
 
     def __init__(self, src):
         self.tree = ast.parse(textwrap.dedent(src))
-        #astpretty.pprint(self.tree)
         self.asm = None
+
+    def show(self, node):
+        import astpretty
+        from ast2png import ast2png
+        astpretty.pprint(node)
+        ast2png(self.tree, highlight_node=node, filename='ast.png')
 
     def _newfunc(self, name, argnames):
         self.asm = FA(name, argnames)
