@@ -133,12 +133,11 @@ class AstCompiler:
 
     def If(self, node):
         """
-        UCOMISD left, right
-        JNA <then>
-        JMP <end>
-        <then>:
-            BODY
-        <end>:
+            IF <test> GOTO then_label
+            GOTO end_label
+        then_label:
+            <BODY>
+        end_label:
             ...
         """
         CMP = {
@@ -167,14 +166,13 @@ class AstCompiler:
 
     def While(self, node):
         """
-        <begin>:
-        UCOMISD left, right
-        JNA <body>
-        JMP <end>
-        <body>:
-            BODY
-            JMP <begin>
-        <end>:
+        begin_label:
+            IF <test> GOTO body_label
+            GOTO end_label
+        body_label:
+            <BODY>
+            GOTO begin_label
+        end_label:
             ...
         """
         CMP = {
