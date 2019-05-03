@@ -12,6 +12,8 @@ HOW TO WRITE A JIT COMPILER IN 30 MINUTES
 
      * All variables are assumed to be of type `float`
 
+     * We use PeachPy to encode ASM instructions
+
      * *DISCLAIMER*
 
          - I have never written any assembly before

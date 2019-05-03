@@ -1,5 +1,6 @@
 import time
 import inspect
+import platform
 
 def compute_pi(iterations):
     delta = 1.0 / iterations
@@ -28,10 +29,10 @@ def run(name, fn, iterations):
     t = b - a
     print('%10s pi = %.6f    t = %.2f secs' % (name, pi, t))
 
-N = 1000
+N = 3000
 def main():
     jitted = compile(compute_pi)
-    run('CPython', compute_pi, N)
+    run(platform.python_implementation(), compute_pi, N)
     run('JIT', jitted, N)
 
 if __name__ == '__main__':
