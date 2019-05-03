@@ -16,12 +16,12 @@ ffi.cdef("""
 class CompiledFunction:
 
     def __init__(self, nargs, code):
-        self.map = mmap.mmap(-1, len(code), mmap.MAP_PRIVATE,
+        self.buf = mmap.mmap(-1, len(code), mmap.MAP_PRIVATE,
                              mmap.PROT_READ | mmap.PROT_WRITE |
                              mmap.PROT_EXEC)
-        self.map[:len(code)] = code
+        self.buf[:len(code)] = code
         fntype = 'fn%d' % nargs
-        self.fptr = ffi.cast(fntype, ffi.from_buffer(self.map))
+        self.fptr = ffi.cast(fntype, ffi.from_buffer(self.buf))
 
     def __call__(self, *args):
         return self.fptr(*args)
