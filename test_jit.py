@@ -108,3 +108,13 @@ class TestAstCompiler:
         """)
         fn = comp.compile()
         assert fn(5) == 1+2+3+4
+
+
+class TestDecorator:
+
+    def test_simple(self):
+        @jit.jit
+        def foo(a, b):
+            return a+b
+        assert type(foo) is jit.CompiledFunction
+        assert foo(39, 3) == 42.0

@@ -1,6 +1,7 @@
 import mmap
 import ast
 import textwrap
+import inspect
 from collections import defaultdict
 from cffi import FFI
 from assembler import FunctionAssembler as FA
@@ -193,3 +194,9 @@ class AstCompiler:
             self.visit(child)
         self.asm.JMP(begin_label)
         self.asm.LABEL(end_label)
+
+
+def jit(fn):
+    src = inspect.getsource(fn)
+    comp = AstCompiler(src)
+    return comp.compile()
