@@ -17,7 +17,8 @@ class CompiledFunction:
 
     def __init__(self, nargs, code):
         self.map = mmap.mmap(-1, len(code), mmap.MAP_PRIVATE,
-                             mmap.PROT_READ | mmap.PROT_WRITE | mmap.PROT_EXEC)
+                             mmap.PROT_READ | mmap.PROT_WRITE |
+                             mmap.PROT_EXEC)
         self.map[:len(code)] = code
         fntype = 'fn%d' % nargs
         self.fptr = ffi.cast(fntype, ffi.from_buffer(self.map))
@@ -28,9 +29,10 @@ class CompiledFunction:
 
 class RegAllocator:
 
-    REGISTERS = (FA.xmm0, FA.xmm1, FA.xmm2, FA.xmm3, FA.xmm4, FA.xmm5,
-                 FA.xmm6, FA.xmm7, FA.xmm8, FA.xmm9, FA.xmm10, FA.xmm11,
-                 FA.xmm12, FA.xmm13, FA.xmm14, FA.xmm15)
+    REGISTERS = (FA.xmm0, FA.xmm1, FA.xmm2, FA.xmm3, FA.xmm4,
+                 FA.xmm5, FA.xmm6, FA.xmm7, FA.xmm8, FA.xmm9,
+                 FA.xmm10, FA.xmm11, FA.xmm12, FA.xmm13,
+                 FA.xmm14, FA.xmm15)
 
     def __init__(self):
         self._registers = list(reversed(self.REGISTERS))
