@@ -113,7 +113,7 @@ class TestAstCompiler:
 class TestDecorator:
 
     def test_simple(self):
-        @jit.jit
+        @jit.compile
         def foo(a, b):
             return a+b
         assert type(foo) is jit.CompiledFunction

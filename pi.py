@@ -1,6 +1,7 @@
 import time
 import inspect
 import platform
+import jit
 
 def compute_pi(iterations):
     delta = 1.0 / iterations
@@ -16,12 +17,6 @@ def compute_pi(iterations):
     total = iterations * iterations
     return inside / total * 4
 
-def compile(fn):
-    from jit import AstCompiler
-    src = inspect.getsource(fn)
-    compiler = AstCompiler(src)
-    return compiler.compile()
-
 def run(name, fn, iterations):
     a = time.time()
     pi = fn(iterations)
@@ -31,7 +26,7 @@ def run(name, fn, iterations):
 
 N = 3000
 def main():
-    jitted = compile(compute_pi)
+    jitted = jit.compile(compute_pi)
     run(platform.python_implementation(), compute_pi, N)
     run('JIT', jitted, N)
 

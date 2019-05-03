@@ -196,7 +196,7 @@ class AstCompiler:
         self.asm.LABEL(end_label)
 
 
-def jit(fn):
+def compile(fn):
     src = inspect.getsource(fn)
     comp = AstCompiler(src)
     return comp.compile()
