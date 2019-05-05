@@ -1,4 +1,4 @@
 pytest
 cffi
 astpretty
--e git+https://github.com/Maratyszcza/PeachPy.git#egg=peachpy
+git+https://github.com/Maratyszcza/PeachPy.git@01d1515#egg=peachpy
