@@ -26,9 +26,10 @@ def run(name, fn, iterations):
 
 N = 3000
 def main():
-    jitted = jit.compile(compute_pi)
     run(platform.python_implementation(), compute_pi, N)
-    run('JIT', jitted, N)
+    if platform.python_implementation() != 'PyPy':
+        jitted = jit.compile(compute_pi)
+        run('JIT', jitted, N)
 
 if __name__ == '__main__':
     main()
