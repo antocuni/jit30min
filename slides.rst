@@ -17,3 +17,15 @@ HOW TO WRITE A JIT COMPILER IN 30 MINUTES
      * *DISCLAIMER*
 
          - I have never written any assembly before
+
+================================
+EP2019 "Write your own JIT" game
+=================================
+
+     * http://github.com/antocuni/jit30min
+
+     * Extend the repo with your favorite feature
+
+     * Send me a PR
+
+     * I won't merge the PR but will keep a list of interested PRs
